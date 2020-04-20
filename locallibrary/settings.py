@@ -147,3 +147,7 @@ STATIC_URL = '/static/'
 # Static file serving.
 # http://whitenoise.evans.io/en/stable/django.html#django-middleware
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+ALLOWED_HOSTS = ['shielded-island-66841.herokuapp.com','127.0.0.1']
+
