@@ -1,8 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
-from datetime import date
-
-
 
 # Create your models here.
 
@@ -46,6 +42,11 @@ class Book(models.Model):
     # Genre class has already been defined so we can specify the object above.
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
 
+    def display_genre(self):
+        """Creates a string for the Genre. This is required to display genre in Admin."""
+        return ', '.join([genre.name for genre in self.genre.all()[:3]])
+
+    display_genre.short_description = 'Genre'
 
     def get_absolute_url(self):
         """Returns the url to access a particular book instance."""
@@ -54,13 +55,6 @@ class Book(models.Model):
     def __str__(self):
         """String for representing the Model object."""
         return self.title
-
-    def display_genre(self):
-        """Create a string for the Genre. This is required to display genre in Admin."""
-        return ', '.join(genre.name for genre in self.genre.all()[:3])
-    
-    display_genre.short_description = 'Genre'
-
 
 
 import uuid  # Required for unique book instances
@@ -78,6 +72,11 @@ class BookInstance(models.Model):
     due_back = models.DateField(null=True, blank=True)
     borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
+    @property
+    def is_overdue(self):
+        if self.due_back and date.today() > self.due_back:
+            return True
+        return False
 
     LOAN_STATUS = (
         ('d', 'Maintenance'),
@@ -99,13 +98,7 @@ class BookInstance(models.Model):
 
     def __str__(self):
         """String for representing the Model object."""
-        return f'{self.id} ({self.book.title})'
-
-    @property
-    def is_overdue(self):
-        if self.due_back and date.today() > self.due_back:
-            return True
-        return False    
+        return '{0} ({1})'.format(self.id, self.book.title)
 
 
 class Author(models.Model):
@@ -125,5 +118,3 @@ class Author(models.Model):
     def __str__(self):
         """String for representing the Model object."""
         return '{0}, {1}'.format(self.last_name, self.first_name)
-
-
